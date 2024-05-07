@@ -1,0 +1,83 @@
+# %pip install matplotlib
+# %pip install pandas
+# %pip install numpy
+# %pip install scikit-learn
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+# df=pd.read_csv("weight-height.csv")
+df = pd.read_csv(r"C:\Users\asus\Jupyter Notebook\SOCR-HeightWeight.csv")
+
+
+del df['Index']
+df.head()
+
+
+df.isnull().sum()
+df.shape
+
+
+x2 = df.iloc[:, 0].values
+y2 = df.iloc[:, 1].values
+plt.scatter(x2,y2,label='Height',color='Green',s=50)
+plt.xlabel('Height')
+plt.ylabel('Weight')
+plt.title('Height vs Weight')
+plt.legend(loc="lower right")
+plt.show()
+
+
+
+X = df.iloc[:, 0:1].values
+print(X)
+
+
+Y = df.iloc[:, 1].values
+print(y)
+
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=123)
+
+
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
+
+
+
+plt.scatter(X_train, y_train, color = 'Orange')
+plt.plot(X_train, regressor.predict(X_train), color = 'black')
+plt.title('Hight vs Weights (Training set)')
+plt.xlabel('Hight')
+plt.ylabel('Weight')
+plt.show()
+
+
+plt.scatter(X_test, y_test, color = 'Orange')
+plt.plot(X_train, regressor.predict(X_train), color = 'black')
+plt.title('Hight vs weights (Test set)')
+plt.xlabel('Height')
+plt.ylabel('Weight')
+plt.show()
+
+
+
+
+import numpy as np
+y_pred = regressor.predict(X_test)
+print('Coefficients: ', regressor.coef_)
+# The mean squared error
+print("Mean squared error: %.2f" % np.mean((regressor.predict(X_test) - y_test) ** 2))
+rmse = np.sqrt(np.mean((regressor.predict(X_test) - y_test) ** 2))
+print("Root mean squared error: %.2f" % rmse)
+mae = np.mean(np.abs(regressor.predict(X_test) - y_test))
+print("Mean absolute error: %.2f" % mae)
+r2 = regressor.score(X_test, y_test)
+print("R-squared score: %.2f" % r2)
+n_features = X_test.shape[1]
+n_samples = X_test.shape[0]
+adjusted_r2 = 1 - (1 - r2) * (n_samples - 1) / (n_samples - n_features - 1)
+print("Adjusted R-squared score: %.2f" % adjusted_r2)

@@ -1,0 +1,35 @@
+# Import necessary libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+import matplotlib.pyplot as plt
+
+# Load the dataset
+data = pd.read_csv("/content/headbrain.csv")
+
+# Define dependent and independent variables
+X = data['Head Size(cm^3)'].values.reshape(-1, 1)  # Independent variable (body weight)
+y = data['Brain Weight(grams)'].values  # Dependent variable (brain weight)
+
+# Split the data into train (80%) and test (20%) sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a linear regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Find accuracy score (coefficient of determination R^2)
+accuracy = model.score(X_test, y_test)
+print(f'Accuracy score: {accuracy}')
+
+# Perform prediction
+y_pred = model.predict(X_test)
+
+# Plot the linear model
+plt.scatter(X_test, y_test, color='blue')
+plt.plot(X_test, y_pred, color='red', linewidth=2)
+plt.xlabel('Body Weight')
+plt.ylabel('Brain Weight')
+plt.title('Linear Regression Model')
+plt.show()

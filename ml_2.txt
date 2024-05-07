@@ -1,0 +1,94 @@
+# %pip install matplotlib
+# %pip install pandas
+# %pip install numpy
+# %pip install scikit-learn
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+
+
+
+# Reading the dataset using raw string literals
+df = pd.read_csv(r"C:\Users\asus\Jupyter Notebook\headbrain.csv")
+
+
+
+
+df.head()
+df.columns
+df.isnull().sum()
+df.shape
+
+
+
+x2 = df.iloc[:,2:3].values
+y2 = df.iloc[:,3:4].values
+plt.scatter(x2,y2,label='head size',color='Green',s=50)
+plt.xlabel('Head Size')
+plt.ylabel('Brain Weight')
+plt.title('Head Size vs Brain Weight')
+plt.legend(loc="lower right")
+plt.tight_layout()
+plt.show()
+
+
+
+from scipy import stats
+df = df[(df["Brain Weight(grams)"] < 1500) & (df["Brain Weight(grams)"] > 1000)]
+df = df[(df["Head Size(cm^3)"] < 4600) & (df["Head Size(cm^3)"] > 2750)]
+# Calculate the z-scores for each column
+z_scores = stats.zscore(df)
+print(f"Max scores :\n{z_scores.max()}")
+print(f"Min scores :\n{z_scores.min()}")
+threshold = 1.85 #1.85 - 0.74
+# Remove rows with outliers based on the slope
+df = df[(z_scores["Brain Weight(grams)"] < threshold) & (z_scores["Brain Weight(grams)"] > -threshold)]
+df = df[(z_scores["Head Size(cm^3)"] < threshold) & (z_scores["Head Size(cm^3)"] > -threshold)]
+
+
+
+X = df.iloc[:, 2:3].values
+#print(X)
+
+y = df.iloc[:, 3:].values
+# print(y)
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
+
+
+
+
+
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
+
+
+
+plt.scatter(X_train, y_train, color = 'Orange')
+plt.plot(X_train, regressor.predict(X_train), color = 'black')
+plt.title('Head Size vs Brain Weight (Training set)')
+plt.xlabel('Head Size')
+plt.ylabel('Brain Weight')
+plt.show()
+
+
+plt.scatter(X_test, y_test, color = 'Orange')
+plt.plot(X_train, regressor.predict(X_train), color = 'black')
+plt.title('Head Size vs Brain Weight (Test set)')
+plt.xlabel('Head Size')
+plt.ylabel('Brain Weight')
+plt.show()
+
+
+
+# Predicting the Test set results
+y_pred = regressor.predict(X_test)
+print('Coefficients: ', regressor.coef_)
+# The mean squared error
+print("Mean squared error: %.2f" % np.mean((regressor.predict(X_test) - y_test) ** 2))
+# Explained variance score: 1 is perfect prediction
+print('Variance score: %.2f' % regressor.score(X_test, y_test))
